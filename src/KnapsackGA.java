@@ -4,6 +4,8 @@ public class KnapsackGA {
 
     public static void main(String[] args) {
         Population population = new Population();
+
+        // while average fitness growth is more than 1%
         population.evaluateFitness();
     }
 }

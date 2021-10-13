@@ -12,6 +12,7 @@ public class Population {
 
     public ArrayList<Gene> genePool;
     public ArrayList<Individual> population;
+    public double totalFitness, averageFitnessGrowth;
 
     // Creates an initial population
     public Population() {
@@ -29,11 +30,32 @@ public class Population {
         return this.population;
     }
 
-    // Evaluates each individual in a population's fitness
+    // Evaluates each individual in a population's fitness and
+    // perform L2 normalization of fitness scores
     public void evaluateFitness() {
         for (Individual individual : population) {
             individual.calculateFitness(genePool);
         }
+        this.normalizeFitness();
+    }
+
+    // Facilitates the normalization of each individual
+    // in a population's fitness
+    public void normalizeFitness() {
+        this.findTotalFitness();
+        for (Individual individual : population) {
+            individual.findNormalizedFitness(this.totalFitness);
+        }
+    }
+
+    // Sets the total fitness of a population for L2 normalization
+    public void findTotalFitness() {
+        double totalFitness = 0.0, squaredFitness;
+        for (Individual individual : population) {
+            squaredFitness = Math.pow(individual.fitness, 2);
+            totalFitness += squaredFitness;
+        }
+        this.totalFitness = totalFitness;
     }
 
     // Read weight and utility values from text file
