@@ -3,8 +3,9 @@ import java.util.ArrayList;
 
 // Individual class
 public class Individual {
-    public double SELECTION_RATE = 0.05;
+    final public double SELECTION_RATE = 0.05;
     public BitSet chromosome;
+    public double fitness;
 
     // Initializes an individual's chromosome based on the gene pool
     public Individual(ArrayList<Gene> genePool) {
@@ -15,8 +16,23 @@ public class Individual {
         }
     }
 
-    // evaluates whether a gene should be selected
+    // Returns an individual's fitness score
+    public double getFitness() {
+        return this.fitness;
+    }
+
+    // Evaluates whether a gene should be selected
     public boolean geneSelection() {
         return Math.random() <= SELECTION_RATE;
+    }
+
+    // Calculates a gene's fitness
+    public void calculateFitness(ArrayList<Gene> genePool) {
+        double fitnessScore = 0.0;
+        for (int i = 0; i < chromosome.size(); i++) {
+            if (chromosome.get(i))
+                fitnessScore += genePool.get(i).getUtility();
+        }
+        this.fitness = fitnessScore;
     }
 }

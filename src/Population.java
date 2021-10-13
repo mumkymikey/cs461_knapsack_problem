@@ -24,6 +24,18 @@ public class Population {
         }
     }
 
+    // Returns the array list of individuals, i.e. the population
+    public ArrayList<Individual> getPopulation() {
+        return this.population;
+    }
+
+    // Evaluates each individual in a population's fitness
+    public void evaluateFitness() {
+        for (Individual individual : population) {
+            individual.calculateFitness(genePool);
+        }
+    }
+
     // Read weight and utility values from text file
     // and store in an array list
     public void initializeGenePool () {
