@@ -1,12 +1,12 @@
 // Gene class
 public class Gene {
-    public double weight;
-    public double utility;
+    final private double utility;
+    final private double weight;
 
     // Initializes a gene, a component of the individual's chromosome
-    public Gene(double weight, double utility) {
-        this.weight = weight;
+    public Gene(double utility, double weight) {
         this.utility = utility;
+        this.weight = weight;
     }
 
     // Retrieve a gene's weight
