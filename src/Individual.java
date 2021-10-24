@@ -1,4 +1,3 @@
-import java.util.BitSet;
 import java.util.ArrayList;
 
 // Individual class

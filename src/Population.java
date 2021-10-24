@@ -1,19 +1,23 @@
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Paths;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Scanner;
-
-import java.nio.file.Paths;
 
 // Population class
 public class Population {
     final int INITIAL_POPULATION = 5000;
     final String INPUT_FILE_PATH = Paths.get(".").toAbsolutePath().normalize().toString() + "/Program2Input.txt";
+    final String OUTPUT_FILE_PATH = Paths.get(".").toAbsolutePath().normalize().toString() + "/output.txt";
 
     private ArrayList<Gene> genePool;
     private ArrayList<Individual> population;
     private ArrayList<Double> averageFitnessHistory, fitnessGrowthHistory;
-    private double totalFitness, totalFitnessForNormalization;
+    private Individual fittestIndividual;
+    private double totalFitness, totalFitnessForNormalization, maxFitness = 0.0;
 
     // Creates an initial population
     public Population() {
@@ -21,6 +25,7 @@ public class Population {
         population = new ArrayList<>();
         averageFitnessHistory = new ArrayList<>();
         fitnessGrowthHistory = new ArrayList<>();
+        fittestIndividual = new Individual();
 
         for (int i = 0; i < INITIAL_POPULATION; i++) {
             Individual dude = new Individual(genePool);
@@ -115,9 +120,9 @@ public class Population {
     public Individual selectIndividual() {
         ArrayList<Individual> tournamentPopulation = new ArrayList<>();
         for (int i = 0; i < 2; i++) {
-            int randIndex = (int)(Math.random() * this.population.size()); // maybe need a minus one
+            int randIndex = (int)(Math.random() * this.population.size());
             Individual contestant = this.population.get(randIndex);
-            tournamentPopulation.add(new Individual(contestant)); // make sure there isn't a deep copy going on
+            tournamentPopulation.add(new Individual(contestant));
         }
 
         if (tournamentPopulation.get(0).fitness >= tournamentPopulation.get(1).fitness)
@@ -126,6 +131,7 @@ public class Population {
             return tournamentPopulation.get(1);
     }
 
+    // Begins evolving the current generation into the next
     public void nextGeneration() {
         ArrayList<Individual> nextGenPopulation = new ArrayList<>();
 
@@ -133,6 +139,9 @@ public class Population {
         // in next gen population
         Individual fittest = new Individual(this.findFittestIndividual());
         nextGenPopulation.add(fittest);
+
+        if (fittestIndividual.fitness < fittest.fitness)
+            fittestIndividual = fittest;
 
         // performs tournament selection and crossover
         for (int i = 0; i < population.size() - 1; i++) {
@@ -151,6 +160,7 @@ public class Population {
         this.population = nextGenPopulation;
     }
 
+    // Perform crossover between two parents
     public static Individual performCrossover(Individual parent1, Individual parent2, int crossoverPoint) {
         Individual child = new Individual();
         for (int i = 0; i < parent1.chromosome.size(); i++) {
@@ -184,6 +194,35 @@ public class Population {
             }
             reader.close();
         } catch(FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Record population information into text file
+    public void recordPopulationStats(int generations) {
+        try {
+            FileWriter writer = new FileWriter(OUTPUT_FILE_PATH);
+            DecimalFormat round = new DecimalFormat("###.###");
+
+            writer.write("Average Fitness For " + generations + " Generations:\n");
+            for (Double avgFitness : averageFitnessHistory) {
+                writer.write(round.format(avgFitness) + "\n");
+            }
+
+            writer.write("\nHIGHEST FITNESS SELECTION\n");
+            writer.write("Total Utility:\n" + round.format(fittestIndividual.fitness));
+
+            writer.write("\nItems Taken (utility, weight):\n");
+            for (int i = 0; i < fittestIndividual.chromosome.size(); i++) {
+                if (fittestIndividual.chromosome.get(i)) {
+                    String utility = String.valueOf(genePool.get(i).getUtility());
+                    String weight = String.valueOf(genePool.get(i).getWeight());
+
+                    writer.write(utility + " " + weight + "\n");
+                }
+            }
+            writer.close();
+        } catch(IOException e) {
             e.printStackTrace();
         }
     }

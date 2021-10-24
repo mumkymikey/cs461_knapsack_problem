@@ -8,12 +8,16 @@ public class KnapsackGA {
         int index = 0;
         Population population = new Population();
 
-        while (index < GENERATIONS && population.evaluateAverageFitnessGrowth()) {
+        while (index < GENERATIONS) {
             population.evaluateFitness();
             population.nextGeneration();
-
-            System.out.println(population.findAverageFitness());
             population.findAverageFitnessGrowth();
+
+            if (!population.evaluateAverageFitnessGrowth()) {
+                population.recordPopulationStats(index);
+                break;
+            }
+
             index++;
         }
     }
